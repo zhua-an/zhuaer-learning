@@ -1,0 +1,28 @@
+
+server:
+  port: 8070
+
+spring:
+  application:
+    name: @artifactId@
+  main:
+    allow-bean-definition-overriding: true
+dubbo:
+  registry:
+    #注册中心地址
+    address: zookeeper://127.0.0.1:2181
+    #    address: 127.0.0.1 # zookeeper注册中心的地址
+    #    port: 2181       # zookeeper注册中心的端口
+    #    protocol: zookeeper
+    #指定注册到zk上超时时间，ms
+    timeout: 10000
+  #指定dubbo使用的协议、端口
+  protocol:
+    name: dubbo
+    port: 20880
+  consumer:
+    #启动应用时是否检查注册中心上有没有依赖的服务，默认true
+#    check: false
+    # 服务调用重试次数
+    retries: 2
+    timeout: 1000

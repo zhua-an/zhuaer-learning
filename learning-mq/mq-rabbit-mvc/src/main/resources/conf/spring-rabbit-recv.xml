@@ -1,0 +1,47 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/rabbit
+ 	http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-4.0.xsd
+ 	http://www.springframework.org/schema/beans
+ 	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+
+    <context:property-placeholder location="classpath:rabbitmq.properties" ignore-unresolvable="true" />
+
+    <!-- 配置连接工厂 -->
+    <rabbit:connection-factory id="connectionFactory"
+                               host="${rabbitmq.host}" port="${rabbitmq.port}" username="${rabbitmq.username}" password="${rabbitmq.password}" virtual-host="${rabbitmq.virtualHost}"/>
+
+    <!-- 定义mq管理 -->
+    <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
+    <rabbit:admin connection-factory="connectionFactory" />
+
+    <!-- 声明队列 -->
+    <rabbit:queue name="queue" auto-declare="true" durable="true" exclusive="false"/>
+
+    <!-- 延迟队列 -->
+    <rabbit:queue name="delay_queue" auto-declare="true">
+        <rabbit:queue-arguments>
+            <entry key="x-message-ttl" value="5000" value-type="java.lang.Long" />
+            <entry key="x-dead-letter-exchange" value="exchange_delay" />
+            <entry key="x-dead-letter-routing-key" value="task_queue" />
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+
+    <!-- 定义消费者 -->
+    <bean name="queuehandler" class="com.zhuaer.learning.mq.rabbit.mvc.handler.RecvHandler" />
+    <bean name="queuehandler3" class="com.zhuaer.learning.mq.rabbit.mvc.handler.RecvHandler3"/>
+
+    <!-- 定义消费者监听队列 -->
+    <!-- 配置监听acknowledeg="manual"设置手动应答，它能够保证即使在一个worker处理消息的时候用CTRL+C来杀掉这个worker，或者一个consumer挂了(channel关闭了、connection关闭了或者TCP连接断了)，也不会丢失消息。因为RabbitMQ知道没发送ack确认消息导致这个消息没有被完全处理，将会对这条消息做re-queue处理。如果此时有另一个consumer连接，消息会被重新发送至另一个consumer会一直重发,直到消息处理成功,监听容器acknowledge="auto" concurrency="30"设置发送次数,最多发送30次 -->
+    <rabbit:listener-container
+            connection-factory="connectionFactory" acknowledge="manual">
+<!--        <rabbit:listener ref="queuehandler" queues="queue" />-->
+        <rabbit:listener ref="queuehandler3" queues="queue" />
+    </rabbit:listener-container>
+
+</beans>

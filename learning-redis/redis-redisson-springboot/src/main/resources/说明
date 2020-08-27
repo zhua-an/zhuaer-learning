@@ -1,0 +1,33 @@
+
+方式一：
+在resource目录新建redisson.yml文件
+clusterServersConfig:
+  # 连接空闲超时，单位：毫秒 默认10000
+  idleConnectionTimeout: 10000
+  pingTimeout: 1000
+  # 同任何节点建立连接时的等待超时。时间单位是毫秒 默认10000
+  connectTimeout: 10000
+  ......
+
+配置redisson
+#path to config - redisson.yaml
+spring.redis.redisson.config=classpath:redisson.yaml
+或者
+@Bean
+public RedissonClient redisson() throws IOException {
+    Config config = Config.fromYAML(new ClassPathResource("redisson.yml").getInputStream());
+    RedissonClient redisson = Redisson.create(config);
+    return redisson;
+}
+
+
+方式二：
+也可以直接把全部配置写到springboot的配置文件application.yml里（不推荐）
+spring:
+  redis:
+    redisson:
+      config:
+        clusterServersConfig:
+          idleConnectionTimeout: 10000
+          connectTimeout: 10000
+          .....
