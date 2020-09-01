@@ -2,15 +2,13 @@
 
 [Dubbo官方文档](http://dubbo.apache.org/zh-cn/docs/user/quick-start.html "Dubbo官方文档")
 
-导入dubbo-starter依赖，在 application.properties 或者 application.yml 配置属性，使用@Service【暴露服务】、使用@Reference【引用服务】
-
 #### dubbo架构图如下：
 
-![dubbo架构图](https://pandao.github.io/editor.md/images/logos/editormd-logo-180x180.png "dubbo架构图")
+![dubbo架构图](../file/dubbo/architecture.png "dubbo架构图")
 
 #### 节点角色说明
 
-![节点角色说明](https://pandao.github.io/editor.md/images/logos/editormd-logo-180x180.png "节点角色说明")
+![节点角色说明](../file/dubbo/5c2ee5c0-a4ea-11e8-a2aa-0bd41466d20f.png "节点角色说明")
 
 #### 调用关系说明:
 - 服务容器负责启动，加载，运行服务提供者。
@@ -28,6 +26,8 @@
 具体详细内容请参加dubbo官方文档
 > http://dubbo.apache.org/zh-cn/index.html
 
+
+导入dubbo-starter依赖，在 application.properties 或者 application.yml 配置属性，使用@Service【暴露服务】、使用@Reference【引用服务】
 
 ## pom.xml添加Dubbo依赖
     <dependency>
@@ -55,14 +55,14 @@
       scan:
         base-packages: com.zhuaer.learning.dubbo.provider.service
 
-Springboot 启动类使用 **@EnableDubbo**  //会扫描所有的包，从中找出dubbo的@Service标注的类
+Springboot 启动类使用 **@EnableDubbo**  //会扫描所有的包，从中找出dubbo的@Service标注的类，
 **@DubboComponentScan**(basePackages = "com.zhuaer.learning.dubbo.provider.service")  //只扫描指定的包，也可以通过配置文件进行配置
 
     dubbo.scan.base-packages=com.zhuaer.learning.dubbo.provider.service
 
 
 ### 提供服务
-使用 **@Service** 注解对外提供服务，注意是**org.apache.dubbo.config.annotation.Service**下Service类
+使用 **@Service** 注解对外提供服务，注意是**org.apache.dubbo.config.annotation.Service**的Service类
 
     @Service(version = "1.0.0")
     public class UserServiceImpl implements UserService {
@@ -72,7 +72,7 @@ Springboot 启动类使用 **@EnableDubbo**  //会扫描所有的包，从中找
         }
     }
 
-Service还包含其他属性： **interfaceName**、**group**、**path**
+Service还包含其他属性： **interfaceName**、**group**、**path**等
 
 ## 消费者配置
     dubbo:
