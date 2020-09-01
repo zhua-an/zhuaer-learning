@@ -1,4 +1,4 @@
-package com.zhuaer.learning.dubbo.provider.service;
+package com.zhuan.learning.dubbo.provider.service;
 
 import com.zhuaer.learning.dubbo.api.service.UserService;
 import org.apache.dubbo.config.annotation.Service;

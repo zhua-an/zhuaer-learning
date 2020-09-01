@@ -1,4 +1,4 @@
-package com.zhuaer.learning.dubbo.provider;
+package com.zhuan.learning.dubbo.provider;
 
 import org.apache.dubbo.config.spring.context.annotation.DubboComponentScan;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
