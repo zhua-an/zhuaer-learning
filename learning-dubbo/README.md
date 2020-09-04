@@ -26,6 +26,9 @@
 具体详细内容请参加dubbo官方文档
 > http://dubbo.apache.org/zh-cn/index.html
 
+<br/>
+
+# 实际运用
 
 导入dubbo-starter依赖，在 application.properties 或者 application.yml 配置属性，使用@Service【暴露服务】、使用@Reference【引用服务】
 
@@ -44,7 +47,7 @@
         address: zookeeper://127.0.0.1:2181
     #    address: 127.0.0.1 # zookeeper注册中心的地址
     #    port: 2181       # zookeeper注册中心的端口
-    #    protocol: zookeeper
+    #    protocol: zookeeper       #使用zookeeper协议
         #指定注册到zk上超时时间，ms
         timeout: 10000
       #指定dubbo使用的协议、端口
@@ -75,13 +78,16 @@ Springboot 启动类使用 **@EnableDubbo**  //会扫描所有的包，从中找
 Service还包含其他属性： **interfaceName**、**group**、**path**等
 
 ## 消费者配置
+
+消费者启动开启检查，如果注册中心没有依赖的服务，会中断Spring启动程序
+
     dubbo:
       registry:
         #注册中心地址
         address: zookeeper://127.0.0.1:2181
         #    address: 127.0.0.1 # zookeeper注册中心的地址
         #    port: 2181       # zookeeper注册中心的端口
-        #    protocol: zookeeper
+        #    protocol: zookeeper       #使用zookeeper协议
         #指定注册到zk上超时时间，ms
         timeout: 10000
       #指定dubbo使用的协议、端口
@@ -96,6 +102,8 @@ Service还包含其他属性： **interfaceName**、**group**、**path**等
         timeout: 1000
 
 ### 消费服务
+
+消费接口使用 **@Reference** 注解
 
     //    @Reference(version = "1.0.0")
     //直连方式，不经过注册中心

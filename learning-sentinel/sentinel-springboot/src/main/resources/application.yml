@@ -1,0 +1,14 @@
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: @artifactId@
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8849
+#        dashboard: 49.232.172.159:8849
+#        port: 8081
+      #eager: true
