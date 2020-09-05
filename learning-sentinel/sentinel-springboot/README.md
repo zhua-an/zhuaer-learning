@@ -46,7 +46,7 @@
         <version>x.y.z</version>
     </dependency>  
  
- 客户端需要引入 Transport 模块来与 Sentinel 控制台进行通信。您可以通过 pom.xml 引入 JAR 包:
+ Sentinel 提供对所有资源的实时监控。如果需要实时监控，客户端需引入以下依赖（以 Maven 为例）：
  
      <dependency>
          <groupId>com.alibaba.csp</groupId>

@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>sentinel-springboot</module>
+        <module>sentinel-gateway</module>
     </modules>
 
 </project>
