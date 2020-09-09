@@ -61,8 +61,9 @@
         sentinel:
           transport:
             dashboard: localhost:8849
-    #        port: 8081
-          #eager: true
+    #        port: 客户端端口（8719）
+    #        client-ip: 客户端IP（指定部署springboot项目云服务器的外网IP）
+    #     eager: true
     
  ## 编写配置类
      /**
@@ -442,3 +443,87 @@ Sentinel 系统自适应限流从整体维度对应用入口流量进行控制�
     }
 
 注意系统规则只针对入口资源（EntryType=IN）生效。
+
+## 问题
+### 如果将控制台部署在公网，本机启动连接出现错误日志
+
+    Failed to fetch metric from <http://IP:8719/metric?startTime=1599630567000&endTime=1599630573000&refetch=false> (ConnectionException: Connection timed out)
+
+说明发送了**内网地址**，导致fetch拉取埋点信息不通
+
+通过`System.setProperty(TransportConfig.HEARTBEAT_CLIENT_IP, split[0].trim());`设置心跳地址为外网地址解决这个问题
+
+本质上是因为控制台主动通过接口来客户端拉信息，但若是访问不通，也是没辙，所以本地测试部在服务器上的控制台，除非外网映射
+
+### 部署上去后发现可以访问通，且项目注册进来了，但没有任何调用信息，且没有任何规则信息
+
+这个问题基础是因为部署到docker上的，之后debug源码，发现控制台调用客户端的地址是我根本没配过的，深入后发现如下代码段
+
+    Runnable serverInitTask = new Runnable() {
+    	int port;
+    
+    	{
+    		try {
+    			port = Integer.parseInt(TransportConfig.getPort());
+    		} catch (Exception e) {
+    			port = DEFAULT_PORT;
+    		}
+    	}
+    
+    	@Override
+    	public void run() {
+    		boolean success = false;
+    		ServerSocket serverSocket = getServerSocketFromBasePort(port);
+    
+    		if (serverSocket != null) {
+    			CommandCenterLog.info("[CommandCenter] Begin listening at port " + serverSocket.getLocalPort());
+    			socketReference = serverSocket;
+    			executor.submit(new ServerThread(serverSocket));
+    			success = true;
+    			port = serverSocket.getLocalPort();
+    		} else {
+    			CommandCenterLog.info("[CommandCenter] chooses port fail, http command center will not work");
+    		}
+    
+    		if (!success) {
+    			port = PORT_UNINITIALIZED;
+    		}
+    
+    		TransportConfig.setRuntimePort(port);
+    		executor.shutdown();
+    	}
+    
+    };
+    
+    new Thread(serverInitTask).start();
+    
+该代码段的作用是为客户端在分配一个socketServer，之后的信息交互都是通过该服务提供的端口来提供；
+
+这样一来客户端需要额外提供一个端口了，而部署的docker只暴露了1个服务端口，所以不可避免的会出现问题，以上是目前的思路，正在验证中
+
+至于端口如何决定，它是用了一个简单的技巧，若设置了`csp.sentinel.api.port`配置项，则会取该配置端口，若没有设，则是默认端口8719；但如果你用的是官网的启动方式，那8719应该是被控制台占用了，所以进入小技巧getServerSocketFromBasePort方法，内容如下
+
+    private static ServerSocket getServerSocketFromBasePort(int basePort) {
+    	int tryCount = 0;
+    	while (true) {
+    		try {
+    			ServerSocket server = new ServerSocket(basePort + tryCount / 3, 100);
+    			server.setReuseAddress(true);
+    			return server;
+    		} catch (IOException e) {
+    			tryCount++;
+    			try {
+    				TimeUnit.MILLISECONDS.sleep(30);
+    			} catch (InterruptedException e1) {
+    				break;
+    			}
+    		}
+    	}
+    	return null;
+    }
+    
+它会循环尝试端口是否被占用，每个端口尝试三次，若被占用则取下一个+1端口，一直到可用的端口返回；所以如果我们的客户端应用放到了docker，而开放的端口只有一个，那就获取不了信息了
+
+这里`csp.sentinel.api.port`配置项很容易理解成客户端的端口地址，因为启动也不会报错啥的，会误让我们误会这个参数可以不填，虽然文档上写着必填，但本地测试的时候可没影响-_-||，所有都注意了，**这个配置项是必填的**
+
+还要注意一点，因为是socket连接，两边端口要一致，所以**docker端口号映射需要一样**

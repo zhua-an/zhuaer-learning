@@ -9,6 +9,6 @@ spring:
     sentinel:
       transport:
         dashboard: localhost:8849
-#        dashboard: 49.232.172.159:8849
-#        port: 8081
-      #eager: true
+#        port: 客户端端口（8719）
+#        client-ip: 客户端IP（指定部署springboot项目云服务器的外网IP）
+#      eager: true

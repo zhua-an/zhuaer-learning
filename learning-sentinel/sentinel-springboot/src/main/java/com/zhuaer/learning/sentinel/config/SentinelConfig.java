@@ -36,7 +36,7 @@ public class SentinelConfig {
     @PostConstruct
     private void initRules() throws Exception {
         FlowRule rule1 = new FlowRule();
-        rule1.setResource("test");
+        rule1.setResource("/test/hello");
         rule1.setGrade(RuleConstant.FLOW_GRADE_QPS);
         rule1.setCount(1);   // 每秒调用最大次数为 1 次
 
