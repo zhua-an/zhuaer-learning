@@ -2,7 +2,7 @@
 
 Elasticsearch客户端API:[https://www.elastic.co/guide/en/elasticsearch/client/index.html](https://www.elastic.co/guide/en/elasticsearch/client/index.html "https://www.elastic.co/guide/en/elasticsearch/client/index.html")
 
-ElasticsearchApplicationTests.java
+具体操作查看：ElasticsearchApplicationTests.java
 
 ## 添加依赖
 > springboot:2.3.3.RELEASE
