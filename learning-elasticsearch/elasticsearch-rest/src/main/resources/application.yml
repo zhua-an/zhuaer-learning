@@ -1,0 +1,10 @@
+
+server:
+  port: 8070
+
+spring:
+  application:
+    name: @artifactId@
+
+elasticsearch:
+  clusterNodes: localhost:9200

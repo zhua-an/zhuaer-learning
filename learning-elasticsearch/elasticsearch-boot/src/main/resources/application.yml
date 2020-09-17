@@ -1,0 +1,14 @@
+
+server:
+  port: 8070
+
+spring:
+  application:
+    name: @artifactId@
+  elasticsearch:
+    rest:
+      uris: http://localhost:9200
+#      username:
+#      password:
+      read-timeout: 30s
+      connection-timeout: 5s

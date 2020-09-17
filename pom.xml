@@ -17,6 +17,7 @@
         <module>learning-dynamic-datasource</module>
         <module>learning-sharding-jdbc</module>
         <module>learning-sentinel</module>
+        <module>learning-elasticsearch</module>
     </modules>
 
 	<properties>
