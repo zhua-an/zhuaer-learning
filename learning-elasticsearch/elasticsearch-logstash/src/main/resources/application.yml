@@ -1,0 +1,11 @@
+
+server:
+  port: 8070
+
+spring:
+  application:
+    name: @artifactId@
+
+logging:
+  level:
+    root: debug

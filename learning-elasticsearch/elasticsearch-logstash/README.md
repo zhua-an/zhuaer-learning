@@ -1,0 +1,167 @@
+# elasticsearch-logstash
+
+ELK即Elasticsearch、Logstash、Kibana,组合起来可以搭建线上日志系统，在目前这种分布式微服务系统中，通过ELK 会非常方便的查询和统计日志情况.
+
+## 添加依赖
+
+    <!--集成logstash-->
+    <dependency>
+    	<groupId>net.logstash.logback</groupId>
+    	<artifactId>logstash-logback-encoder</artifactId>
+    	<version>5.3</version>
+    </dependency>
+    
+## logback-spring.xml配置 新增appender
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    
+    <configuration>
+        <!--指定property属性变量-->
+        <property name="log.path" value="/logs/logdemo"/>
+    
+        <!-- 日志输出格式
+         %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n
+         -->
+        <!-- 控制台 appender-->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+    
+    
+        <!-- 文件 滚动日志 (all)-->
+        <appender name="allLog"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <!-- 当前日志输出路径、文件名 -->
+            <file>${log.path}/all.log</file>
+            <!--日志输出格式-->
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+            <!--历史日志归档策略-->
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <!-- 历史日志： 归档文件名 -->
+                <fileNamePattern>${log.path}/%d{yyyy-MM, aux}/all.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <!--单个文件的最大大小-->
+                <maxFileSize>64MB</maxFileSize>
+                <!--日志文件保留天数-->
+                <maxHistory>15</maxHistory>
+            </rollingPolicy>
+    
+    
+        </appender>
+    
+    
+        <!-- 文件 滚动日志 (仅error)-->
+        <appender name="errorLog"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <!-- 当前日志输出路径、文件名 -->
+            <file>${log.path}/error.log</file>
+            <!--日志输出格式-->
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+    
+            <!--历史日志归档策略-->
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <!-- 历史日志： 归档文件名 -->
+                <fileNamePattern>${log.path}/%d{yyyy-MM, aux}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <!--单个文件的最大大小-->
+                <maxFileSize>64MB</maxFileSize>
+                <!--日志文件保留天数-->
+                <maxHistory>15</maxHistory>
+            </rollingPolicy>
+    
+            <!-- 此日志文档只记录error级别的  level过滤器-->
+            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+                <level>error</level>
+                <onMatch>ACCEPT</onMatch>
+                <onMismatch>DENY</onMismatch>
+            </filter>
+    
+    
+    
+        </appender>
+    
+    
+        <!-- 文件 异步日志(async) -->
+        <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender"
+                  immediateFlush="false" neverBlock="true">
+            <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+            <discardingThreshold>0</discardingThreshold>
+            <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+            <queueSize>1024</queueSize>
+            <neverBlock>true</neverBlock>
+            <!-- 添加附加的appender,最多只能添加一个 -->
+            <appender-ref ref="allLog" />
+        </appender>
+    
+    
+    
+        <!--输出到logstash的appender-->
+        <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <!--可以访问的logstash日志收集端口-->
+            <destination>localhost:4560</destination>
+            <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
+                <!--自定义字段，区分应用名称-->
+                <!--<customFields>{"appname":"logdemo"}</customFields>-->
+            </encoder>
+    
+        </appender>
+    
+    
+    
+        <!-- root 级别的配置 -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <!--<appender-ref ref="allLog" />-->
+            <appender-ref  ref="ASYNC"/>
+            <appender-ref ref="errorLog" />
+    
+            <appender-ref ref="logstash" />
+        </root>
+    
+        <!--可输出mapper层sql语句等-->
+        <logger name="com.zhuaer" level="debug">
+        </logger>
+    
+        <!--输出jdbc 事务相关信息-->
+        <logger name="org.springframework.jdbc" level="debug">
+        </logger>
+    
+    </configuration>
+
+主要修改模块：
+
+    <!--输出到logstash的appender-->
+    <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    	<!--可以访问的logstash日志收集端口-->
+    	<destination>localhost:4560</destination>
+    	<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
+    		<!--自定义字段，区分应用名称-->
+    		<!--<customFields>{"appname":"logdemo"}</customFields>-->
+    	</encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="LOGSTASH"/>
+    </root>
+
+## logstash配置
+在  logstash目录创建 logstash.conf
+
+    input {
+    	tcp {
+    		mode => "server"
+    		host => "0.0.0.0"
+    		port => 4560
+    		codec => json_lines
+    	}
+    }
+    output {
+    	elasticsearch {
+    		hosts => "192.168.11.10:9200"
+    		index => "springboot-logstash-%{+YYYY.MM.dd}"
+    	}
+    }
