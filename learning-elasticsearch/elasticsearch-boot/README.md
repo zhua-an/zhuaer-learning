@@ -4,6 +4,9 @@ Elasticsearch客户端API:[https://www.elastic.co/guide/en/elasticsearch/client/
 
 具体操作查看：[ElasticsearchApplicationTests.java](./src/test/java/ElasticsearchApplicationTests.java "ElasticsearchApplicationTests.java")
 
+**ES检索分类**
+![ESsearch.png](../../file/elasticsearch/ESsearch.png "ESsearch.png")
+
 ## 添加依赖
 > springboot:2.3.3.RELEASE
 >
