@@ -1,0 +1,64 @@
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: @artifactId@
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8849
+#      datasource:
+#        ds:
+#          nacos:
+#            server-addr: 127.0.0.1:8848
+#            data-id: Sentinel:Demo
+#            namespace: sentinel
+#            group-id: DEFAULT_GROUP
+#            data-type: json
+#            rule-type: flow
+  #      eager: true
+  main:
+    allow-bean-definition-overriding: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+#spring.cloud.sentinel.datasource.ds.nacos.server-addr=127.0.0.1:8848
+#spring.cloud.sentinel.datasource.ds.nacos.data-id=gateway-sentinel-degrade.properties
+#spring.cloud.sentinel.datasource.ds.nacos.namespace=0e152861-1efa-62ea-9125-e569abc29691
+#spring.cloud.sentinel.datasource.ds.nacos.group-id=DEFAULT_GROUP
+#spring.cloud.sentinel.datasource.ds.nacos.data-type=json
+#spring.cloud.sentinel.datasource.ds.nacos.rule-type=flow
+
+
+#spring.cloud.sentinel.transport.dashboard：sentinel dashboard的访问地址，根据上面准备工作中启动的实例配置
+#spring.cloud.sentinel.datasource.ds.nacos.server-addr：nacos的访问地址，，根据上面准备工作中启动的实例配置
+#spring.cloud.sentinel.datasource.ds.nacos.groupId：nacos中存储规则的groupId
+#spring.cloud.sentinel.datasource.ds.nacos.dataId：nacos中存储规则的dataId
+#spring.cloud.sentinel.datasource.ds.nacos.rule-type：该参数是spring cloud alibaba升级到0.2.2之后增加的配置，用来定义存储的规则类型。所有的规则类型可查看枚举类：org.springframework.cloud.alibaba.sentinel.datasource.RuleType，每种规则的定义格式可以通过各枚举值中定义的规则对象来查看，比如限流规则可查看：com.alibaba.csp.sentinel.slots.block.flow.FlowRule
+
+
+#[
+#  {
+#    "resource": "/test/test",
+#    "limitApp": "default",
+#    "grade": 1,
+#    "count": 5,
+#    "strategy": 0,
+#    "controlBehavior": 0,
+#    "clusterMode": false
+#  }
+#]
+
+#resource：资源名，即限流规则的作用对象
+#limitApp：流控针对的调用来源，若为 default 则不区分调用来源
+#grade：限流阈值类型（QPS 或并发线程数）；0代表根据并发数量来限流，1代表根据QPS来进行流量控制
+#count：限流阈值
+#strategy：调用关系限流策略
+#controlBehavior：流量控制效果（直接拒绝、Warm Up、匀速排队）
+#clusterMode：是否为集群模式

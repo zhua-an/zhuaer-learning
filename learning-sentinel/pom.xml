@@ -14,6 +14,7 @@
     <modules>
         <module>sentinel-springboot</module>
         <module>sentinel-gateway</module>
+        <module>sentinel-nocas</module>
     </modules>
 
 </project>
