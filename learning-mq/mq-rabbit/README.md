@@ -359,44 +359,44 @@ ps：里面的虚拟virtual-host配置项不是必须的，我自己在rabbitmq�
     @Controller
     public class HelloSender implements RabbitTemplate.ConfirmCallback,RabbitTemplate.ReturnCallback{
     
-        private RabbitTemplate rabbitTemplate;
+    	private RabbitTemplate rabbitTemplate;
     
-        //构造方法注入
-        @Autowired
-        public HelloSender(RabbitTemplate rabbitTemplate) {
-            this.rabbitTemplate = rabbitTemplate;
-            //这是是设置回调能收到发送到响应
-            rabbitTemplate.setConfirmCallback(this);
-            //如果设置备份队列则不起作用
-            rabbitTemplate.setMandatory(true);
-            rabbitTemplate.setReturnCallback(this);
-        }
+    	//构造方法注入
+    	@Autowired
+    	public HelloSender(RabbitTemplate rabbitTemplate) {
+    		this.rabbitTemplate = rabbitTemplate;
+    		//这是是设置回调能收到发送到响应
+    		rabbitTemplate.setConfirmCallback(this);
+    		//如果设置备份队列则不起作用
+    		rabbitTemplate.setMandatory(true);
+    		rabbitTemplate.setReturnCallback(this);
+    	}
     
-        @RequestMapping("/send")
-        @ResponseBody
-        public void send() {
-            CorrelationData correlationId = new CorrelationData(UUID.randomUUID().toString());
-            String sendMsg = "hello1 " + new Date();
-            System.out.println("Sender : " + sendMsg);
-            //convertAndSend(exchange:交换机名称,routingKey:路由关键字,object:发送的消息内容,correlationData:消息ID)
-            rabbitTemplate.convertAndSend("exchange.hello","topic.message", sendMsg,correlationId);
-        }
+    	@RequestMapping("/send")
+    	@ResponseBody
+    	public void send() {
+    		CorrelationData correlationId = new CorrelationData(UUID.randomUUID().toString());
+    		String sendMsg = "hello1 " + new Date();
+    		System.out.println("Sender : " + sendMsg);
+    		//convertAndSend(exchange:交换机名称,routingKey:路由关键字,object:发送的消息内容,correlationData:消息ID)
+    		rabbitTemplate.convertAndSend("exchange.hello","topic.message", sendMsg,correlationId);
+    	}
     
-        //回调确认
-        @Override
-        public void confirm(CorrelationData correlationData, boolean ack, String cause) {
-            if(ack){
-                log.info("消息发送成功:correlationData({}),ack({}),cause({})",correlationData,ack,cause);
-            }else{
-                log.info("消息发送失败:correlationData({}),ack({}),cause({})",correlationData,ack,cause);
-            }
-        }
+    	//回调确认
+    	@Override
+    	public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+    		if(ack){
+    			log.info("消息发送成功:correlationData({}),ack({}),cause({})",correlationData,ack,cause);
+    		}else{
+    			log.info("消息发送失败:correlationData({}),ack({}),cause({})",correlationData,ack,cause);
+    		}
+    	}
     
-        //消息发送到转换器的时候没有对列,配置了备份对列该回调则不生效
-        @Override
-        public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-            log.info("消息丢失:exchange({}),route({}),replyCode({}),replyText({}),message:{}",exchange,routingKey,replyCode,replyText,message);
-        }
+    	//消息发送到转换器的时候没有对列,配置了备份对列该回调则不生效
+    	@Override
+    	public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
+    		log.info("消息丢失:exchange({}),route({}),replyCode({}),replyText({}),message:{}",exchange,routingKey,replyCode,replyText,message);
+    	}
     }
 
 - 初始化 Bean 之后设置，实现`InitializingBean`，重写 `afterPropertiesSet` 方法
