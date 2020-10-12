@@ -333,7 +333,7 @@ ps：里面的虚拟virtual-host配置项不是必须的，我自己在rabbitmq�
 
 也可以单独配置，在需要发送mq的地方单独配置：
 
-- 构造方法注入设置，实现`RabbitTemplate.ConfirmCallback`,`RabbitTemplate.ReturnCallback`接口，重写`confirm`、`returnedMessage`方法
+1、构造方法注入设置，实现`RabbitTemplate.ConfirmCallback`,`RabbitTemplate.ReturnCallback`接口，重写`confirm`、`returnedMessage`方法
 
 
     import lombok.extern.slf4j.Slf4j;
@@ -399,7 +399,7 @@ ps：里面的虚拟virtual-host配置项不是必须的，我自己在rabbitmq�
     	}
     }
 
-- 初始化 Bean 之后设置，实现`InitializingBean`，重写 `afterPropertiesSet` 方法
+2、初始化 Bean 之后设置，实现`InitializingBean`，重写 `afterPropertiesSet` 方法
 
 
     import lombok.extern.slf4j.Slf4j;
