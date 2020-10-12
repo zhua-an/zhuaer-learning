@@ -93,6 +93,22 @@
      	com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager.loadRules(rules);
      }
      
+**配置一个全局的限流异常处理（非必选）**
+
+    @Slf4j
+    @ControllerAdvice
+    @Order(0)
+    public class SentinelBlockHandlerConfig {
+    
+        @ExceptionHandler(BlockException.class)
+        @ResponseBody
+        public String sentinelBlockHandler(BlockException e) {
+            log.warn("Blocked by Sentinel: {}", e.getRule());
+            // Return the customized result.
+            return "error";
+        }
+    }
+     
 ## 限流注解使用
 
 ### java 代码中使用

@@ -43,7 +43,7 @@ public class HelloSender implements RabbitTemplate.ConfirmCallback,RabbitTemplat
         String sendMsg = "hello1 " + new Date();
         System.out.println("Sender : " + sendMsg);
         //convertAndSend(exchange:交换机名称,routingKey:路由关键字,object:发送的消息内容,correlationData:消息ID)
-        rabbitTemplate.convertAndSend("exchange.hello","helloKey", sendMsg,correlationId);
+        rabbitTemplate.convertAndSend("topicExchange.hello","topic.message", sendMsg,correlationId);
     }
 
 

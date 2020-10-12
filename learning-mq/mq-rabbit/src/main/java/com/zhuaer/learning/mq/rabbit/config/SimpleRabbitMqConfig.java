@@ -1,9 +1,6 @@
 package com.zhuaer.learning.mq.rabbit.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -24,8 +21,17 @@ public class SimpleRabbitMqConfig {
     final static String message = "topic.message";
     final static String messages = "topic.messages";
 
+    /**
+     * 队列
+     * @return
+     */
     @Bean
     public Queue queueMessage() {
+        // durable:是否持久化,默认是false,持久化队列：会被存储在磁盘上，当消息代理重启时仍然存在，暂存队列：当前连接有效
+        // exclusive:默认也是false，只能被当前创建的连接使用，而且当连接关闭后队列即被删除。此参考优先级高于durable
+        // autoDelete:是否自动删除，当没有生产者或者消费者使用此队列，该队列会自动删除。
+        //   return new Queue(SimpleRabbitMqConfig.message,true,true,false);
+
         return new Queue(SimpleRabbitMqConfig.message);
     }
 
@@ -34,19 +40,44 @@ public class SimpleRabbitMqConfig {
         return new Queue(SimpleRabbitMqConfig.messages);
     }
 
+    /**
+     * topic交换机
+     * @return
+     */
     @Bean
-    TopicExchange exchange() {
-        return new TopicExchange("exchange");
+    TopicExchange topicExchange() {
+        return new TopicExchange("topicExchange.hello");
     }
 
+    /**
+     * direct交换机
+     * @return
+     */
     @Bean
-    Binding bindingExchangeMessage(Queue queueMessage, TopicExchange exchange) {
-        return BindingBuilder.bind(queueMessage).to(exchange).with("topic.message");
+    DirectExchange directExchange() {
+        return new DirectExchange("directExchange.hello",true,false);
     }
 
+    /**
+     * 绑定  将队列和交换机绑定, 并设置用于匹配键
+     * @param queueMessage
+     * @param topicExchange
+     * @return
+     */
     @Bean
-    Binding bindingExchangeMessages(Queue queueMessages, TopicExchange exchange) {
-        return BindingBuilder.bind(queueMessages).to(exchange).with("topic.#");
+    Binding bindingExchangeMessage(Queue queueMessage, TopicExchange topicExchange) {
+        return BindingBuilder.bind(queueMessage).to(topicExchange).with("topic.message");
+    }
+
+    /**
+     * 绑定  将队列和交换机绑定, 并设置用于匹配键
+     * @param queueMessages
+     * @param topicExchange
+     * @return
+     */
+    @Bean
+    Binding bindingExchangeMessages(Queue queueMessages, TopicExchange topicExchange) {
+        return BindingBuilder.bind(queueMessages).to(topicExchange).with("topic.#");
     }
 
     /**

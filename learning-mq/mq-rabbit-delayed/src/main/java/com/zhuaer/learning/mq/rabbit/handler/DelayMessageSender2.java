@@ -1,7 +1,5 @@
 package com.zhuaer.learning.mq.rabbit.handler;
 
-import com.zhuaer.learning.mq.rabbit.config.DelayTypeEnum;
-import com.zhuaer.learning.mq.rabbit.config.RabbitMQConfig;
 import com.zhuaer.learning.mq.rabbit.config.RabbitMQConfig2;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,13 @@
 package com.zhuaer.learning.mq.rabbit.config;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+
 /**
  * @ClassName RabbitTemplateConfig
  * @Description TODO
@@ -7,15 +15,16 @@ package com.zhuaer.learning.mq.rabbit.config;
  * @Date 2020/8/20 14:14
  * @Version 1.0
  */
+@Slf4j
 public class RabbitTemplateConfig {
 
-    /*
-    @Autowired
+    /*@Autowired
     private CachingConnectionFactory connectionFactory;
     @Bean
     public RabbitTemplate rabbitTemplate() {
         //若使用confirm-callback ，必须要配置publisherConfirms 为true
-        connectionFactory.setPublisherConfirms(true);
+        //connectionFactory.setPublisherConfirms(true);
+        connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED);
         //若使用return-callback，必须要配置publisherReturns为true
         connectionFactory.setPublisherReturns(true);
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

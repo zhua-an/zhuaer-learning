@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -33,7 +34,14 @@ public class RabbitmqConfig {
 
     @Autowired
     Environment env;
+    @Autowired
+    private SimpleRabbitListenerContainerFactoryConfigurer factoryConfigurer;
 
+
+    /**
+     * 定义连接工厂
+     * @return
+     */
     @Bean
     public ConnectionFactory connectionFactory(){
         CachingConnectionFactory factory = new CachingConnectionFactory(
@@ -44,7 +52,8 @@ public class RabbitmqConfig {
         factory.setPassword(env.getProperty("rabbitmq.password"));
         factory.setVirtualHost(env.getProperty("rabbitmq.virtualHost"));
 
-//        factory.setUri("amqp://admin:123456@192.168.1.131:5672");
+//        factory.setUri("amqp://admin:123456@127.0.0.1:5672");
+
         return factory;
     }
 
@@ -69,41 +78,92 @@ public class RabbitmqConfig {
         backOffPolicy.setMaxInterval(10000);
         retryTemplate.setBackOffPolicy(backOffPolicy);
         template.setRetryTemplate(retryTemplate);
+        //全局设置rabbitTemplate绑定的消息队列
         //template.setRoutingKey(env.getProperty("rabbitmq.produce.queuename"));
         return template;
     }
 
+    /**
+     * 定义队列
+     * @return
+     */
     @Bean
     public Queue myQueue() {
         return new Queue(QUEUE_NAME);
     }
 
+    /**
+     * Direct交换机
+     * @return
+     */
     @Bean
     public DirectExchange exchange() {
         return new DirectExchange(EXCHANGE_NAME);
     }
 
+    /**
+     * Fanout交换机
+     * @return
+     */
     @Bean
     public FanoutExchange fanoutExchange() {
         return new FanoutExchange("fanout:"+ EXCHANGE_NAME);
     }
 
+    /**
+     * Direct交换机绑定队列
+     * @return
+     */
     @Bean
     public Binding binding() {
         return BindingBuilder.bind(this.myQueue()).to(this.exchange()).with(ROUTING_KEY);
     }
 
+    /**
+     * Fanout交换机绑定队列
+     * @return
+     */
     @Bean
     public Binding fanoutBinding() {
         return BindingBuilder.bind(this.myQueue()).to(this.fanoutExchange());
     }
 
-
-    @Bean
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+    /**
+     * 单一消费者
+     * @return
+     */
+    @Bean(name = "singleListenerContainer")
+    public SimpleRabbitListenerContainerFactory listenerContainer(ConnectionFactory connectionFactory){
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
+        //消息类型转换器
         factory.setMessageConverter(new Jackson2JsonMessageConverter());
+        factory.setConcurrentConsumers(1);
+        factory.setMaxConcurrentConsumers(1);
+        //调整批量获取消息条数
+        factory.setPrefetchCount(1);
+        factory.setBatchSize(1);
+        factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
+        return factory;
+    }
+
+    /**
+     * 多个消费者
+     * @return
+     */
+    @Bean(name = "multiListenerContainer")
+    public SimpleRabbitListenerContainerFactory multiListenerContainer(ConnectionFactory connectionFactory){
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factoryConfigurer.configure(factory,connectionFactory);
+        factory.setMessageConverter(new Jackson2JsonMessageConverter());
+        factory.setAcknowledgeMode(AcknowledgeMode.NONE);
+        //并发设置
+        //并发消费者的初始化值
+        factory.setConcurrentConsumers(env.getProperty("spring.rabbitmq.listener.concurrency",int.class));
+        //并发消费者的最大值
+        factory.setMaxConcurrentConsumers(env.getProperty("spring.rabbitmq.listener.max-concurrency",int.class));
+        //每个消费者每次监听时可拉取处理的消息数量
+        factory.setPrefetchCount(env.getProperty("spring.rabbitmq.listener.prefetch",int.class));
         return factory;
     }
 
@@ -148,9 +208,16 @@ public class RabbitmqConfig {
         return  (MessageListener) Class.forName(env.getProperty("rabbitmq.listener.class")).newInstance();
     }*/
 
-    @Bean
-    public ChannelAwareMessageListener channelAwareMessageListener() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        return  (ChannelAwareMessageListener) Class.forName(env.getProperty("rabbitmq.listener.class")).newInstance();
-    }
+//    /**
+//     * 定义消息监听容器
+//     * @return
+//     * @throws InstantiationException
+//     * @throws IllegalAccessException
+//     * @throws ClassNotFoundException
+//     */
+//    @Bean
+//    public ChannelAwareMessageListener channelAwareMessageListener() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+//        return  (ChannelAwareMessageListener) Class.forName(env.getProperty("rabbitmq.listener.class")).newInstance();
+//    }
 
 }
