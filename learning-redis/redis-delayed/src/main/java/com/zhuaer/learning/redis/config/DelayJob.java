@@ -1,4 +1,4 @@
-package com.zhuaer.learning.redis.bean;
+package com.zhuaer.learning.redis.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

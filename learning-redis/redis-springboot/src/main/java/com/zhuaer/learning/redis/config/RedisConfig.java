@@ -1,20 +1,26 @@
-package com.zhuaer.learning.redis.bean;
+package com.zhuaer.learning.redis.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 /**
  * @ClassName RedisConfig
@@ -26,6 +32,26 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableCaching //开启注解
 public class RedisConfig extends CachingConfigurerSupport {
+
+    /**
+     * 选择redis作为默认缓存工具
+     * @param redisConnectionFactory
+     * @return
+     */
+    /*@Bean
+    //springboot 1.xx
+    public CacheManager cacheManager(RedisTemplate redisTemplate) {
+        RedisCacheManager rcm = new RedisCacheManager(redisTemplate);
+        return rcm;
+    }*/
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofHours(1)); // 设置缓存有效期一小时
+        return RedisCacheManager
+                .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
+                .cacheDefaults(redisCacheConfiguration).build();
+    }
 
     /**
      * retemplate相关配置
@@ -75,17 +101,37 @@ public class RedisConfig extends CachingConfigurerSupport {
         container.setConnectionFactory(factory);
 
         /**
-         * 添加订阅者监听类，数量不限.PatternTopic定义监听主题,这里监听dj主题
+         * 添加订阅者监听类，数量不限.PatternTopic定义监听主题,这里监听topic主题
          */
         container.addMessageListener(new SubscribeListener(), new PatternTopic("topic"));
         return container;
     }
 
-    /**
-     * 消息监听器适配器，绑定消息处理器，利用反射技术调用消息处理器的业务方法
-     * @param subscribeListener
-     * @return
-     */
+//    /**
+//     * 订阅者监听配置
+//     * @param factory
+//     * @param listenerAdapter
+//     * @return
+//     */
+//    @Bean
+//    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory factory,
+//                                                                       MessageListenerAdapter listenerAdapter) {
+//
+//        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+//        container.setConnectionFactory(factory);
+//
+//        /**
+//         * 添加订阅者监听类，数量不限.PatternTopic定义监听主题,这里监听topic主题
+//         */
+//        container.addMessageListener(listenerAdapter, new PatternTopic("topic"));
+//        return container;
+//    }
+//
+//    /**
+//     * 消息监听器适配器，绑定消息处理器，利用反射技术调用消息处理器的业务方法
+//     * @param subscribeListener
+//     * @return
+//     */
 //    @Bean
 //    MessageListenerAdapter listenerAdapter(SubscribeListener subscribeListener) {
 //        System.out.println("消息适配器1");

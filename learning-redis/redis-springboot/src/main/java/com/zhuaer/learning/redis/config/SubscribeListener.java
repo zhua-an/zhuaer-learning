@@ -1,4 +1,4 @@
-package com.zhuaer.learning.redis.bean;
+package com.zhuaer.learning.redis.config;
 
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;

@@ -1,7 +1,7 @@
 package com.zhuaer.learning.redis.service;
 
-import com.zhuaer.learning.redis.bean.DelayJob;
-import com.zhuaer.learning.redis.bean.Job;
+import com.zhuaer.learning.redis.config.DelayJob;
+import com.zhuaer.learning.redis.config.Job;
 import com.zhuaer.learning.redis.constants.JobStatus;
 import com.zhuaer.learning.redis.container.DelayBucket;
 import com.zhuaer.learning.redis.container.JobPool;

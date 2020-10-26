@@ -19,6 +19,7 @@ import java.util.function.Consumer;
  */
 public class RedisDelayedQueueT<T> {
 
+    //原子操作类
     private static final AtomicInteger COUNTER = new AtomicInteger(1);
 
     private volatile boolean started = false;

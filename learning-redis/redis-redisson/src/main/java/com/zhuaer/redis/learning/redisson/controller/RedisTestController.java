@@ -19,7 +19,7 @@ public class RedisTestController {
     @Autowired
     private RedissonClient redissonClient;
 
-    @RequestMapping("test1")
+    @RequestMapping("redisTest")
     public String test1() {
         // 设置字符串
         RBucket<String> keyObj = redissonClient.getBucket("k1");

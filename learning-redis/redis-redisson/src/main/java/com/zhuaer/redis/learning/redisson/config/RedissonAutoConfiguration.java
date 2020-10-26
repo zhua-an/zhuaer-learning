@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @ClassName RedissonAutoConfiguration
- * @Description TODO
+ * @Description SpringBoot自动装配类
  * @Author zhua
  * @Date 2020/7/17 18:34
  * @Version 1.0
@@ -32,7 +32,7 @@ public class RedissonAutoConfiguration {
     private RedissonProperties redssionProperties;
 
     /**
-     * 哨兵模式自动装配
+     * 哨兵模式自动装配 （哨兵模式跟单机模式配置其中之一）
      * @return
      */
     @Bean
@@ -52,7 +52,7 @@ public class RedissonAutoConfiguration {
     }
 
     /**
-     * 单机模式自动装配
+     * 单机模式自动装配 （哨兵模式跟单机模式配置其中之一）
      * @return
      */
     @Bean

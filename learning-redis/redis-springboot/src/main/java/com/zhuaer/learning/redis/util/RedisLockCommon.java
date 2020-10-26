@@ -1,4 +1,4 @@
-package com.zhuaer.learning.redis.bean;
+package com.zhuaer.learning.redis.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

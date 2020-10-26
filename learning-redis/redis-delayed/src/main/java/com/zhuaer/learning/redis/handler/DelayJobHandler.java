@@ -1,8 +1,8 @@
 package com.zhuaer.learning.redis.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.zhuaer.learning.redis.bean.DelayJob;
-import com.zhuaer.learning.redis.bean.Job;
+import com.zhuaer.learning.redis.config.DelayJob;
+import com.zhuaer.learning.redis.config.Job;
 import com.zhuaer.learning.redis.constants.DelayConfig;
 import com.zhuaer.learning.redis.constants.JobStatus;
 import com.zhuaer.learning.redis.container.DelayBucket;

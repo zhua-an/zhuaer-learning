@@ -5,68 +5,11 @@ server:
 spring:
   application:
     name: @artifactId@
-#  redis:
-#    #Redis数据库索引（默认为0）
-#    database: 5
-#    host: 127.0.0.1
-#    password:
-#    port: 16379
-#    jedis:
-#      pool:
-#        # 连接池最大连接数（使用负值表示没有限制）
-#        max-active: 32
-#        # 连接池中的最大空闲连接
-#        max-idle: 20
-#        # 连接池中的最小空闲连接
-#        min-idle: 5
-#        # 连接池最大阻塞等待时间（使用负值表示没有限制）
-#        max-wait: 100ms
-#    # 连接超时时间（毫秒）默认是2000ms
-#    timeout: 10000ms
+  redis:
+    redisson:
+      # 配置单点模式
+      file: "classpath:redisson.yaml"
   main:
     allow-bean-definition-overriding: true
 
-#https://github.com/redisson/redisson/wiki/2.-%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95#26-%E5%8D%95redis%E8%8A%82%E7%82%B9%E6%A8%A1%E5%BC%8F
-redisson:
-  address: redis://127.0.0.1:16379
-  password:
-  connection-pool-size: 10
-
-
-#  1、单机模式
-# redisson lock
-#  redisson.address=redis://10.18.75.115:6379
-#  redisson.password=
-
-#  2、哨兵模式
-#  redisson.master-name=mymaster
-#  redisson.password=xxxx
-#  redisson.sentinel-addresses=10.47.91.83:26379,10.47.91.83:26380,10.47.91.83:26381
-
-
-
-#  公平锁（Fair Lock）
-#  基于Redis的Redisson分布式可重入公平锁也是实现了java.util.concurrent.locks.Lock接口的一种RLock对象。同时还提供了异步（Async）、反射式（Reactive）和RxJava2标准的接口。它保证了当多个Redisson客户端线程同时请求加锁时，优先分配给先发出请求的线程。所有请求线程会在一个队列中排队，当某个线程出现宕机时，Redisson会等待5秒后继续下一个线程，也就是说如果前面有5个线程都处于等待状态，那么后面的线程会等待至少25秒。
-#
-#  RLock fairLock = redisson.getFairLock("anyLock");
-#  // 最常见的使用方法
-#  fairLock.lock();
-#  大家都知道，如果负责储存这个分布式锁的Redis节点宕机以后，而且这个锁正好处于锁住的状态时，这个锁会出现锁死的状态。为了避免这种情况的发生，Redisson内部提供了一个监控锁的看门狗，它的作用是在Redisson实例被关闭前，不断的延长锁的有效期。默认情况下，看门狗的检查锁的超时时间是30秒钟，也可以通过修改Config.lockWatchdogTimeout来另行指定。
-#
-#  另外Redisson还通过加锁的方法提供了leaseTime的参数来指定加锁的时间。超过这个时间后锁便自动解开了。
-#
-#  // 10秒钟以后自动解锁
-#  // 无需调用unlock方法手动解锁
-#  fairLock.lock(10, TimeUnit.SECONDS);
-#
-#  // 尝试加锁，最多等待100秒，上锁以后10秒自动解锁
-#  boolean res = fairLock.tryLock(100, 10, TimeUnit.SECONDS);
-#  ...
-#  fairLock.unlock();
-#  Redisson同时还为分布式可重入公平锁提供了异步执行的相关方法：
-#
-#  RLock fairLock = redisson.getFairLock("anyLock");
-#  fairLock.lockAsync();
-#  fairLock.lockAsync(10, TimeUnit.SECONDS);
-#  Future<Boolean> res = fairLock.tryLockAsync(100, 10, TimeUnit.SECONDS);
-
+#redisson 官网文档：https://github.com/redisson/redisson/wiki/2.-%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95#26-%E5%8D%95redis%E8%8A%82%E7%82%B9%E6%A8%A1%E5%BC%8F

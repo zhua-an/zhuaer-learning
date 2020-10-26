@@ -1,4 +1,4 @@
-package com.zhuaer.learning.redis.bean;
+package com.zhuaer.learning.redis.config;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;

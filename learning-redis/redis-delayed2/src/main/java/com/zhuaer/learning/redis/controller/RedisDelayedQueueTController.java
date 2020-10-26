@@ -39,8 +39,9 @@ public class RedisDelayedQueueTController {
 
 
     @GetMapping("/redisT")
-    public void addTest(){
+    public String addTest(){
         redisDelayedQueue.setStringRedisTemplate(stringRedisTemplate);
         redisDelayedQueue.putForDelayedTime("测试延时定时任务",5000);
+        return "success";
     }
 }

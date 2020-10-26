@@ -1,8 +1,8 @@
 package com.zhuaer.learning.redis.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.zhuaer.learning.redis.bean.DelayJob;
-import com.zhuaer.learning.redis.bean.Job;
+import com.zhuaer.learning.redis.config.DelayJob;
+import com.zhuaer.learning.redis.config.Job;
 import com.zhuaer.learning.redis.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @ClassName DelayController
- * @Description TODO
+ * @Description 测试
  * @Author zhua
  * @Date 2020/8/21 17:08
  * @Version 1.0
@@ -54,6 +54,11 @@ public class DelayController {
         return "success";
     }
 
+    /**
+     * 任务的删除/消费
+     * @param jobId
+     * @return
+     */
     @RequestMapping(value = "delete",method = RequestMethod.DELETE)
     public String deleteJob(Long jobId) {
         jobService.deleteJob(jobId);

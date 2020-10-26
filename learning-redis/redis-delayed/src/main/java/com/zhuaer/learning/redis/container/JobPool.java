@@ -1,7 +1,7 @@
 package com.zhuaer.learning.redis.container;
 
 import com.alibaba.fastjson.JSON;
-import com.zhuaer.learning.redis.bean.Job;
+import com.zhuaer.learning.redis.config.Job;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;

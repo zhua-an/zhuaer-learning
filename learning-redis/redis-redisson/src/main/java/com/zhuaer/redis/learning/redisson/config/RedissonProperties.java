@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @ClassName RedissonProperties
- * @Description TODO
+ * @Description redisson属性装配类
  * @Author zhua
  * @Date 2020/7/17 18:33
  * @Version 1.0
