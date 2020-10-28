@@ -18,6 +18,7 @@
         <module>learning-sharding-jdbc</module>
         <module>learning-sentinel</module>
         <module>learning-elasticsearch</module>
+        <module>learning-websocket</module>
     </modules>
 
 	<properties>

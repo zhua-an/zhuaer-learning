@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>玩转spring boot——websocket</title>
+    <script src="//cdn.bootcss.com/angular.js/1.5.6/angular.min.js"></script>
+    <script src="https://cdn.bootcss.com/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
+    <script type="text/javascript">
+        var stompClient = null;
+
+        var app = angular.module('app', []);
+        app.controller('MainController', function($rootScope, $scope, $http) {
+
+            $scope.data = {
+                connected : false,
+                sendMessage : '',
+                receivMessages : []
+            };
+
+            //连接
+            $scope.connect = function() {
+                var socket = new SockJS('/websocket-endpoint');
+                stompClient = Stomp.over(socket);
+                stompClient.connect({}, function(frame) {
+                    // 订阅后端主动推消息到前端的topic
+                    //消息确认ack
+                    stompClient.subscribe('/topicTest/servertime', function(r) {
+                        $scope.data.time = '当前服务器时间：' + r.body;
+                        $scope.data.connected = true;
+                        $scope.$apply();
+                        r.ack();
+                    },{ack: 'client'});
+                    // 订阅后端为目标用户发送消息的topic
+                    stompClient.subscribe('/userTest/zhua/message', function(r) {
+                        $scope.data.receivMessages.push(r.body);
+                        $scope.data.connected = true;
+                        $scope.$apply();
+                    });
+                    // 阅后端主动推消息到前端的topic,只有指定的用户(zhua)收到的的消息
+                    stompClient.subscribe('/userTest/zhua/info', function(r) {
+                        $scope.data.zhuatime = '当前服务器时间：' + r.body;
+                        $scope.data.connected = true;
+                        $scope.$apply();
+                    });
+                    // 订阅前端发到后台，后台又将消息返回前台的topic
+                    stompClient.subscribe('/topicTest/web-to-server-to-web', function(msg) {
+                        $scope.data.receivMessages.push(msg.body);
+                        $scope.data.connected = true;
+                        $scope.$apply();
+                    });
+
+
+                    $scope.data.connected = true;
+                    $scope.$apply();
+                });
+            };
+
+            $scope.disconnect = function() {
+                if (stompClient != null) {
+                    stompClient.disconnect();
+                }
+                $scope.data.connected = false;
+            }
+
+            $scope.send = function() {
+                /*client.send(destination url[, headers[, body]]);
+                其中
+                destination url 为服务器 controller中 @MessageMapping 中匹配的URL，字符串，必须参数；
+                headers 为发送信息的header，JavaScript 对象，可选参数；
+                body 为发送信息的 body，字符串，可选参数；*/
+                stompClient.send("/app/send", {}, JSON.stringify({
+                    'message' : $scope.data.sendMessage
+                }));
+            }
+
+            $scope.sendToUser = function() {
+                stompClient.send("/app/sendToUser", {}, JSON.stringify({
+                    'message' : $scope.data.sendMessage
+                }));
+            }
+        });
+    </script>
+</head>
+<body ng-app="app" ng-controller="MainController">
+
+<h2>websocket示例</h2>
+<label>WebSocket连接状态:</label>
+<button type="button" ng-disabled="data.connected" ng-click="connect()">连接</button>
+<button type="button" ng-click="disconnect()" ng-disabled="!data.connected">断开</button>
+<br/>
+<br/>
+<div ng-show="data.connected">
+    <h4>以下是websocket的服务端主动推送消息到页面的例子</h4>
+    <label>{{data.time}}</label> <br/> <br/>
+</div>
+<div ng-show="data.connected">
+    <h4>以下是websocket的服务端主动推送消息到页面的例子,只有zhua这个用户收到</h4>
+    <label>{{data.zhuatime}}</label> <br/> <br/>
+</div>
+<div ng-show="data.connected">
+    <h4>以下是websocket的客户端发消息到服务端，服务端再将该消息返回到客户端（页面）的例子</h4>
+    <input type="text" ng-model="data.sendMessage" placeholder="请输入内容..." />
+    <button ng-click="send()" type="button">发送</button>
+    <button ng-click="sendToUser()" type="button">发送给用户</button>
+    <br/>
+    <table>
+        <thead>
+        <tr>
+            <th>消息内容:</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="messageContent in data.receivMessages">
+            <td>{{messageContent}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
