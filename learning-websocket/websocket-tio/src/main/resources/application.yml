@@ -1,0 +1,19 @@
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: @artifactId@
+
+tio:
+  websocket:
+    server:
+      port: 9876
+      heartbeat-timeout: 60000
+      #是否支持集群，集群开启需要redis
+    cluster:
+      enabled: false
+    redis:
+      ip: 192.168.1.225
+      port: 6379

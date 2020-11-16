@@ -243,7 +243,24 @@ WebSocket 是 HTML5 开始提供的一种在单个 TCP 连接上进行全双工�
         }
     
     }
-    
+
+**说明**
+
+这里有几个注解需要注意一下，首先是他们的包都在 **javax.websocket** 下。并不是 spring 提供的，而 jdk 自带的，下面是他们的具体作用。
+
+- **@ServerEndpoint**
+通过这个 spring boot 就可以知道你暴露出去的 ws 应用的路径，有点类似我们经常用的@RequestMapping。比如你的启动端口是8080，而这个注解的值是ws，那我们就可以通过 ws://127.0.0.1:8080/ws 来连接你的应用
+- **@OnOpen**
+当 websocket 建立连接成功后会触发这个注解修饰的方法，注意它有一个 Session 参数
+- **@OnClose**
+当 websocket 建立的连接断开后会触发这个注解修饰的方法，注意它有一个 Session 参数
+- **@OnMessage**
+当客户端发送消息到服务端时，会触发这个注解修改的方法，它有一个 String 入参表明客户端传入的值
+- **@OnError**
+当 websocket 建立连接时出现异常会触发这个注解修饰的方法，注意它有一个 Session 参数
+
+另外一点就是服务端如何发送消息给客户端，服务端发送消息必须通过上面说的 Session 类，通常是在@OnOpen 方法中，当连接成功后把 session 存入 Map 的 value，key 是与 session 对应的用户标识，当要发送的时候通过 key 获得 session 再发送，这里可以通过 **session.getBasicRemote_().sendText(_)** 来对客户端发送消息。
+
 ## 消息推送
 
 至于推送新信息，可以再自己的Controller写个方法调用WebSocketServer.sendInfo();即可
@@ -334,3 +351,428 @@ WebSocket 是 HTML5 开始提供的一种在单个 TCP 连接上进行全双工�
     </html>
 
 完成以上工作，就可以启动项目测试了。打开两个页面，按F12调出控控制台查看测试效果：分别开启socket，再发送消息
+
+
+# Spring Cloud/Boot WebSocket 无法注入其他类的解决办法
+
+## 不能注入原因
+
+项目启动时初始化，会初始化 websocket （非用户连接的），spring 同时会为其注入 service，该对象的 service 不是 null，被成功注入。但是，由于 spring 默认管理的是单例，所以只会注入一次 service。当新用户进入聊天时，系统又会创建一个新的 websocket 对象，这时矛盾出现了：spring 管理的都是单例，不会给第二个 websocket 对象注入 service，所以导致只要是用户连接创建的 websocket 对象，都不能再注入了。
+
+## 解决办法
+
+像 controller 里面有 service， service 里面有 dao。因为 controller，service ，dao 都有是单例，所以注入时不会报 null。但是 websocket 不是单例，所以使用spring注入一次后，后面的对象就不会再注入了，会报null。
+
+## 例如
+
+
+    import com.alibaba.fastjson.JSON;
+    import net.sf.json.JSONObject;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.data.redis.core.StringRedisTemplate;
+    import org.springframework.stereotype.Component;
+    import org.springframework.stereotype.Service;
+    import org.springframework.web.socket.*;
+    import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+    import java.io.IOException;
+    import java.util.HashMap;
+    import java.util.Map;
+    import java.util.Set;
+
+    /**
+     * @Author:
+     * @Date: 2019/9/20 14:44
+     */
+    @Service
+    @Component
+    public class MyHandler extends TextWebSocketHandler /*implements WebSocketHandler*/ {
+
+
+        //@Autowired
+        private static StringRedisTemplate stringRedisTemplate;
+
+        /**
+         * 项目启动时初始化，会初始化 websocket （非用户连接的），
+         * spring 同时会为其注入 service，该对象的 service 不是 null，被成功注入。
+         * 但是，由于 spring 默认管理的是单例，所以只会注入一次 service。
+         * 当新用户进入聊天时，系统又会创建一个新的 websocket 对象，
+         * 这时矛盾出现了：spring 管理的都是单例，不会给第二个 websocket 对象注入 service，
+         * 所以导致只要是用户连接创建的 websocket 对象，都不能再注入了。
+         * <p>
+         * <p>
+         * controller 里面有 service， service 里面有 dao。
+         * 因为 controller，service ，dao 都有是单例，
+         * 所以注入时不会报 null。但是 websocket 不是单例，
+         * 所以使用spring注入一次后，后面的对象就不会再注入了，会报null。
+         *
+         * @param stringRedisTemplate
+         */
+        @Autowired
+        public void setStringRedisTemplate(StringRedisTemplate stringRedisTemplate) {
+            MyHandler.stringRedisTemplate = stringRedisTemplate;
+        }
+
+        //在线用户列表
+        private static final Map<String, WebSocketSession> users;
+
+
+        static {
+            users = new HashMap<>();
+        }
+
+        //新增socket
+        @Override
+        public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+            System.out.println("成功建立连接");
+            String ID = session.getUri().toString().split("ID=")[1];
+            System.out.println(ID);
+            if (ID != null) {
+                //users.put(ID, session);
+                Map<String, WebSocketSession> hashMap = new HashMap<>();
+                hashMap.put(ID, session);
+                stringRedisTemplate.convertAndSend("index", hashMap.toString());
+                session.sendMessage(new TextMessage("成功建立socket连接"));
+            }
+            System.out.println("当前在线人数：" + users.size());
+        }
+
+        public void receiveMessage(String message) {
+            System.out.println(message);
+            Map<String, WebSocketSession> hashMap = JSON.parseObject(message, HashMap.class);
+            users.putAll(hashMap);
+            System.out.println("添加登陆信息：" + message);
+            //这里是收到通道的消息之后执行的方法
+        }
+
+
+        //接收socket信息
+        @Override
+        public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) throws Exception {
+            try {
+                JSONObject jsonobject = JSONObject.fromObject(webSocketMessage.getPayload());
+                System.out.println(jsonobject.get("id"));
+                System.out.println(jsonobject.get("message") + ":来自" + (String) webSocketSession.getAttributes().get("WEBSOCKET_USERID") + "的消息");
+                sendMessageToUser(jsonobject.get("id") + "", new TextMessage("服务器收到了，hello!"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        /**
+         * 发送信息给指定用户
+         *
+         * @param clientId
+         * @param message
+         * @return
+         */
+        public boolean sendMessageToUser(String clientId, TextMessage message) {
+            if (users.get(clientId) == null) return false;
+            WebSocketSession session = users.get(clientId);
+            System.out.println("sendMessage:" + session);
+            if (!session.isOpen()) return false;
+            try {
+                session.sendMessage(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * 广播信息
+         *
+         * @param message
+         * @return
+         */
+        public boolean sendMessageToAllUsers(TextMessage message) {
+            boolean allSendSuccess = true;
+            Set<String> clientIds = users.keySet();
+            WebSocketSession session = null;
+            for (String clientId : clientIds) {
+                try {
+                    session = users.get(clientId);
+                    if (session.isOpen()) {
+                        session.sendMessage(message);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    allSendSuccess = false;
+                }
+            }
+
+            return allSendSuccess;
+        }
+
+        @Override
+        public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+            if (session.isOpen()) {
+                session.close();
+            }
+            System.out.println("连接出错");
+            users.remove(getClientId(session));
+        }
+
+        @Override
+        public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+            System.out.println("连接已关闭：" + status);
+            users.remove(getClientId(session));
+        }
+
+        @Override
+        public boolean supportsPartialMessages() {
+            return false;
+        }
+
+        /**
+         * 获取用户标识
+         *
+         * @param session
+         * @return
+         */
+        private Integer getClientId(WebSocketSession session) {
+            try {
+                Integer clientId = (Integer) session.getAttributes().get("WEBSOCKET_USERID");
+                return clientId;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
+
+## 第二种解释
+
+首先WebSocket的例子：
+
+    @ServerEndpoint(value = "/websocket" )
+    @Component
+    public class MyWebSocket
+    {
+        // 与某个客户端的连接会话，需要通过它来给客户端发送数据
+        private Session session;
+
+        @Autowired
+        TestInfo testInfo;
+
+        /**
+         * 连接建立成功调用的方法
+         */
+        @OnOpen
+        public void onOpen(Session session)
+        {
+            System.out.println(this.hashCode());
+            this.session = session;
+            try
+            {
+                System.out.println(testInfo.name);
+                sendMessage("新用户添加进来了....");
+            }
+            catch (IOException e)
+            {
+                System.out.println("IO异常");
+            }
+        }
+
+        /**
+         * 连接关闭调用的方法
+         */
+        @OnClose
+        public void onClose()
+        {
+            System.out.println("有一连接关闭！当前在线人数为" + getOnlineCount());
+        }
+
+        /**
+         * 收到客户端消息后调用的方法
+         *
+         * @param message
+         *            客户端发送过来的消息
+         */
+        @OnMessage
+        public void onMessage(String message, Session session)
+        {
+            System.out.println("来自客户端的消息:" + message);
+        }
+
+        /**
+         * 发生错误时调用
+         */
+        @OnError
+        public void onError(Session session, Throwable error)
+        {
+            System.out.println("发生错误");
+            error.printStackTrace();
+        }
+
+        public void sendMessage(String message) throws IOException
+        {
+            this.session.getBasicRemote().sendText(message);
+        }
+    }
+
+当客户端发送请求的时候，会报空指针异常，TestInfo 为空。
+创建MyWebSocket，也是通过@Bean的形式实现的。其他的地方都没有问题。
+
+我已经autowired了，干嘛没注入啊。
+
+TestInfo是通过Spring容器进行管理的，但是使用ServerEndpoint这个注解的时候，失效了。
+猜测原因就是这个MyWebSocket这个并不是Spring容器管理的。但是这个是官方推荐的实现方法 啊。
+
+寻寻觅觅，最后在强大的stackoverflow中找到了解决问题的办法。
+https://stackoverflow.com/questions/30483094/springboot-serverendpoint-failed-to-find-the-root-webapplicationcontext
+
+**第一种方法：**
+
+继续用ServerEndpoint。
+定义一个MyEndpointConfigure
+
+    /**
+     * 
+     * @author lipengbin
+     *
+     */
+    public class MyEndpointConfigure extends ServerEndpointConfig.Configurator implements ApplicationContextAware
+    {
+        private static volatile BeanFactory context;
+    
+        @Override
+        public <T> T getEndpointInstance(Class<T> clazz) throws InstantiationException
+        {
+             return context.getBean(clazz);
+        }
+    
+        @Override
+        public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+        {
+            System.out.println("auto load"+this.hashCode());
+            MyEndpointConfigure.context = applicationContext;
+        }
+    }
+
+这个类的核心就是**getEndpointInstance(Class clazz)**这个方法。
+
+定义了获取类实例是通过ApplicationContext获取。
+
+    @Configuration
+    public class MyConfigure
+    {
+    
+        @Bean
+        public MyEndpointConfigure newConfigure()
+        {
+            return new MyEndpointConfigure();
+        }
+    }
+    
+**修改MyWebSocket的注解**
+
+@ServerEndpoint(value = “/websocket” ) 为 @ServerEndpoint(value = “/websocket”,configurator=MyEndpointConfigure.class)
+大致的意思可以理解了，创建类需要通过 **MyEndpointConfigure.getEndpointInstance()** 这个来实现。
+
+运行一切正常。
+
+但是这种形式并不是正常的Spring容器去正常去管理这个WebSocket，个人觉得并不是很好。
+
+这个帖子同时还给出了第二解决方法。原生的Spring实现的WebSocket的办法。
+
+**第二种解决办法：**
+
+与其说是第二种办法，不如说是Spring第二种实现WebSocket的方案。和第一种没有任何的联系。
+
+代码如下：
+
+**核心Handler，有Spring的风格**
+
+    @Component
+    public class WsHandler extends TextWebSocketHandler
+    {
+    
+        @Autowired  
+        TestInfo testInfo;
+    
+        @Override
+        public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception
+        {
+            super.afterConnectionClosed(session, status);
+            System.out.println("close....");
+        }
+    
+        @Override
+        public void afterConnectionEstablished(WebSocketSession session) throws Exception
+        {
+            super.afterConnectionEstablished(session);
+            System.out.println("----->"+testInfo.test());
+            System.out.println("建立新的会话");
+        }
+    
+        @Override
+        protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception
+        {       
+            System.out.println(message.getPayload());
+            TextMessage msg=new TextMessage(message.getPayload());
+            session.sendMessage(msg);
+    
+        }
+    
+        @Override
+        public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception
+        {
+            super.handleMessage(session, message);
+        }
+    
+        @Override
+        public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception
+        {
+            super.handleTransportError(session, exception);
+        }
+    
+    }
+
+简单实现几个关键的方法。
+
+TestInfo 直接注入。
+
+编写Configure类
+
+    @Configuration
+    @EnableWebSocket
+    public class WsConfigure implements WebSocketConfigurer
+    {
+        @Override
+        public void registerWebSocketHandlers(WebSocketHandlerRegistry registry)
+        {
+            System.out.println("==========================");
+            registry.addHandler(myHandler(), "/websocket").setAllowedOrigins("*");
+        }
+    
+        @Bean
+        public WsHandler myHandler()
+        {
+            return new WsHandler();
+        }
+    }
+
+这种实现方法可以查看官方文档。
+https://docs.spring.io/spring/docs/4.3.13.RELEASE/spring-framework-reference/htmlsingle/#websocket
+
+经测试可以正常工作。
+
+## 第三种方法
+
+**将要注入的 service 改成 static，就不会为null了**
+
+    @Controller
+    @ServerEndpoint(value="/chatSocket")
+    public class ChatSocket {
+        //  这里使用静态，让 service 属于类
+        private static ChatService chatService;
+    
+        // 注入的时候，给类的 service 注入
+        @Autowired
+        public void setChatService(ChatService chatService) {
+            ChatSocket.chatService = chatService;
+        }
+    }
+    
