@@ -15,7 +15,7 @@
         <module>websocket-netty</module>
         <module>websocket-springboot</module>
         <module>websocket-springboot2</module>
-        <module>webscoket-springboot3</module>
+        <module>websocket-springboot3</module>
         <module>websocket-tio</module>
     </modules>
 
