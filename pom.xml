@@ -11,7 +11,7 @@
 
 	<modules>
 		<module>learning-dubbo</module>
-		<module>zookeeper</module>
+		<module>learning-zookeeper</module>
         <module>learning-redis</module>
 		<module>learning-mq</module>
         <module>learning-dynamic-datasource</module>
@@ -32,6 +32,7 @@
 		<spring-cloud-alibaba.version>0.2.2.RELEASE</spring-cloud-alibaba.version>
 		<alibaba-cloud.version>2.1.1.RELEASE</alibaba-cloud.version>
 		<fastjson.version>1.2.68</fastjson.version>
+		<hutool.version>5.4.6</hutool.version>
 	</properties>
 
 	<dependencies>
@@ -55,6 +56,12 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>${fastjson.version}</version>
+		</dependency>
+		<!--hutool-->
+		<dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>${hutool.version}</version>
 		</dependency>
 		<!--Lombok-->
 		<dependency>
