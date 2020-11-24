@@ -28,6 +28,19 @@ ActiveMQ的两种消息传递类型：
 
 两种消息传递类型的不同，点对点传输消费者可以接收到在连接之前生产者所推送的数据，而基于发布/订阅模式的传输方式消费者只能接收到连接之后生产者推送的数据。
 
+## ActiveMQ的消息持久化机制
+
+ActiveMQ的持久化机制包含
+
+- JDBC： 持久化到数据库
+- AMQ ：日志文件（已基本不用）
+- KahaDB ： AMQ基础上改进，默认选择
+- LevelDB ：谷歌K/V数据库
+
+在activemq.xml中查看默认的broker持久化机制。
+
+默认消息持久化到ActiveMQ路径下的data目录下。
+
 ## 实战
 
 - [Spring Boot集成ActiveMQ](./active-mq-boot/ "Spring Boot集成ActiveMQ")

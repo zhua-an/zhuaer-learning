@@ -32,6 +32,7 @@ spring:
     in-memory: true
 ```
 
+其他配置
 ```
 # 基于内存的ActiveMQ
 spring.activemq.in-memory=true
@@ -43,7 +44,13 @@ spring.activemq.in-memory=true
 #信任所有的包
 #spring.activemq.packages.trust-all=true
 #是否替换默认的连接池，使用ActiveMQ的连接池需引入的依赖
-#spring.activemq.pool.enabled=false
+#spring.activemq.pool.enabled=true
+#连接池最大连接数
+#spring.activemq.pool.max-connections=10
+#空闲的连接过期时间，默认为30秒
+#spring.activemq.pool.idle-timeout=30000
+#强制的连接过期时间，与idleTimeout的区别在于：idleTimeout是在连接空闲一段时间失效，而expiryTimeout不管当前连接的情况，只要达到指定时间就失效。默认为0，never
+#spring.activemq.pool.expiry-timeout=0
 ```
 
 上述配置中有两套配置，Spring Boot支持基于内存ActiveMQ和基于独立安装的ActiveMQ。正常请求基于内存的形式是为了方便测试而使用，基于独立安装的形式才是真正用于生产环境。此处为了讲解功能，方便测试，采用基于内存的形式。
