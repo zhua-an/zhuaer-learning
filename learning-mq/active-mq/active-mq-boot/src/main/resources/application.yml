@@ -10,11 +10,11 @@ spring:
 # 是否启用内存模式（就是不安装MQ，项目启动时同时启动一个MQ实例）
   activemq:
     in-memory: true
-  jms:
-    pub-sub-domain: true    #false = Quene   true = Topic
 #    user:
 #    password:
 #    broker-url: tcp://127.0.0.1:61616
+  jms:
+    pub-sub-domain: true    #false = Quene   true = Topic
 
 
 #广播模式

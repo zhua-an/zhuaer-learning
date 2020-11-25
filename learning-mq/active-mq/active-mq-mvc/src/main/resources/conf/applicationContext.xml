@@ -13,9 +13,8 @@
     <context:spring-configured />
 
     <!-- 读取配置文件 -->
-    <context:property-placeholder location="classpath*:rabbitmq.properties"/>
+    <context:property-placeholder location="classpath*:activemq.properties"/>
 
-    <import resource="classpath*:conf/spring-rabbit-recv.xml" />
-    <import resource="classpath*:conf/spring-rabbit-send.xml" />
+    <import resource="classpath*:conf/spring-active.xml" />
 
 </beans>

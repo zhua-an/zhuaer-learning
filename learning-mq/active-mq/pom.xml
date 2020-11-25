@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>active-mq-boot</module>
+        <module>active-mq-mvc</module>
     </modules>
 
 </project>

@@ -277,6 +277,7 @@ receiveTopic1接收到Topic消息 : 提现200.00元
 在ActiveMqConfig配置类中新增如下配置：
 
 ```java
+
     /**
      * 队列模式监听工厂
      * @param connectionFactory
@@ -322,5 +323,76 @@ receiveTopic1接收到Topic消息 : 提现200.00元
 
 分别执行两种形式的消息，发现都正常互利。同时，此时配置文件中的项`spring.jms.pub-sub-domain`也无效了。
 
+## 延迟消息
 
+首先在ActiveMQ的安装路径 /conf/activemq.xml 修改配置文件  增加：schedulerSupport="true"
+
+![消息延迟](../../../file/activeMQ/activeMQ_broker.png "消息延迟")
+
+然后保存重启服务
+
+进入bin目录，执行 
+
+```shell
+./activemq restart
+```
+
+生产者修改
+
+```java
+/**
+ * 延时发送
+ *
+ * @param destination 发送的队列
+ * @param data        发送的消息
+ * @param time        延迟时间
+ */
+public <T extends Serializable> void delaySend(Destination destination, T data, Long time) {
+	Connection connection = null;
+	Session session = null;
+	MessageProducer producer = null;
+	// 获取连接工厂
+	ConnectionFactory connectionFactory = jmsMessagingTemplate.getConnectionFactory();
+	try {
+		// 获取连接
+		connection = connectionFactory.createConnection();
+		connection.start();
+		// 获取session，true开启事务，false关闭事务
+		session = connection.createSession(Boolean.TRUE, Session.AUTO_ACKNOWLEDGE);
+		// 创建一个消息队列
+		producer = session.createProducer(destination);
+		producer.setDeliveryMode(JmsProperties.DeliveryMode.PERSISTENT.getValue());
+		ObjectMessage message = session.createObjectMessage(data);
+		//设置延迟时间
+		message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+		// 发送消息
+		producer.send(message);
+		log.info("发送消息：{}", data);
+		session.commit();
+	} catch (Exception e) {
+		e.printStackTrace();
+	} finally {
+		try {
+			if (producer != null) {
+				producer.close();
+			}
+			if (session != null) {
+				session.close();
+			}
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+```
+
+延时消息队列测试
+
+```java
+// 发送延迟消息
+producer.delaySend(Producer.DEFAULT_QUEUE, "要发送的消息", 10000L);
+```
 

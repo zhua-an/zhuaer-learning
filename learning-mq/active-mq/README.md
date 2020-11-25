@@ -44,6 +44,7 @@ ActiveMQ的持久化机制包含
 ## 实战
 
 - [Spring Boot集成ActiveMQ](./active-mq-boot/ "Spring Boot集成ActiveMQ")
+- [Spring MVC集成ActiveMQ](./active-mq-mvc/ "Spring MVC集成ActiveMQ")
 
 ## 其他事项
 
