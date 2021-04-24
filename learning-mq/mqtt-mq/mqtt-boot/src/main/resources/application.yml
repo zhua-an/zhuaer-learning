@@ -1,0 +1,17 @@
+
+spring:
+  mqtt:
+    # 账号
+    username:
+    # 密码
+    password:
+    # mqtt连接tcp地址
+    host-url: tcp://broker.emqx.io:1883
+    # 客户端Id，每个启动的id要不同
+    client-id: test
+    # 默认主题
+    default-topic: test
+    # 超时时间 单位为秒
+    timeout: 100
+    # 设置会话心跳时间 单位为秒 服务器会每隔1.5*20秒的时间向客户端发送心跳判断客户端是否在线
+    keepalive: 100

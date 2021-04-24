@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:int-mqtt="http://www.springframework.org/schema/integration/mqtt"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/integration/mqtt
+        http://www.springframework.org/schema/integration/mqtt/spring-integration-mqtt-4.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd ">
+
+    <context:property-placeholder location="classpath:mqtt.properties" ignore-unresolvable="true"/>
+
+    <!-- clientFactory 新版本登录信息需要设置到 org.eclipse.paho.client.mqttv3.MqttConnectOptions -->
+    <bean id="clientFactory" class="org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory">
+        <property name="connectionOptions">
+            <bean class="org.eclipse.paho.client.mqttv3.MqttConnectOptions">
+                <property name="userName" value="${mqtt.username}"/>
+                <property name="password" value="${mqtt.password}"/>
+                <property name="cleanSession" value="${mqtt.cleanSession}"/>
+                <property name="keepAliveInterval" value="${mqtt.keepAliveInterval}"/>
+                <property name="serverURIs">
+                    <array>
+                        <value>${mqtt.serverURI1}</value>
+                    </array>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <!-- 入站（消息驱动）通道适配器-->
+    <int:channel id="mqttInputChannel"/>
+    <!-- 出站（消息驱动）通道适配器-->
+    <int:channel id="mqttOutputChannel"/>
+
+    <!-- 消费者 -->
+    <int-mqtt:message-driven-channel-adapter
+            id="mqttInbound"
+            client-id="mqtt_bound_in"
+            qos="1"
+            client-factory="clientFactory"
+            auto-startup="true"
+            send-timeout="10"
+            channel="mqttInputChannel"
+            topics="TOPIC_TEST#"/>
+
+    <!--生产者 -->
+    <int-mqtt:outbound-channel-adapter
+            id="mqttOutbound"
+            client-id="mqtt_bound_out"
+            client-factory="clientFactory"
+            auto-startup="true"
+            default-qos="1"
+            default-topic="TOPIC_TEST"
+            channel="mqttOutputChannel"/>
+
+    <!--消息发送方式一-->
+    <!-- 配置出站网关，用于发送消息 -->
+    <int:gateway service-interface="com.zhuaer.learning.mqtt.service.handler.MqttMessageSender" id="mqttMessageSender" default-request-channel="mqttOutputChannel"/>
+
+    <!--消息发送方式二-->
+    <bean id="mqttHandler" class="org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler">
+        <constructor-arg name="clientId" value="${mqtt.clientId}_two"/>
+        <constructor-arg name="clientFactory" ref="clientFactory"/>
+        <property name="async" value="${mqtt.async}"/>
+        <property name="defaultQos" value="${mqtt.defaultQos}"/>
+        <property name="completionTimeout" value="${mqtt.completionTimeout}"/>
+    </bean>
+
+    <!--将自定义消息接收类装配到入站适配器, 用于接收消息-->
+    <int:service-activator id="startCaseService"
+                           input-channel="mqttInputChannel" ref="mqttMessageHandle" method="handleMessage"/>
+
+    <!-- 自定义消息接收类 -->
+    <bean id="mqttMessageHandle" class="com.zhuaer.learning.mqtt.service.handler.MqttMessageHandle"></bean>
+
+    <!-- 消息发送处理 -->
+    <bean id="mqttCaseService" class="com.zhuaer.learning.mqtt.service.impl.MqttServiceImpl"/>
+
+</beans>
