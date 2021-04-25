@@ -11,6 +11,12 @@
     <packaging>jar</packaging>
     <artifactId>zookeeper-server</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.4.8</version>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -1,0 +1,18 @@
+zoo:
+  keeper:
+    #开启标志
+    enabled: true
+    #服务器地址
+    server: 127.0.0.1:2181
+    #命名空间，被称为ZNode
+    namespace: cicada
+    #权限控制，加密
+#    digest: smile:123456
+    ##会话超时时间，单位为毫秒，默认60000ms,连接断开后，其它客户端还能请到临时节点的时间
+    sessionTimeoutMs: 3000
+    #连接创建超时时间，单位为毫秒
+    connectionTimeoutMs: 60000
+    #最大重试次数
+    maxRetries: 2
+    #初始休眠时间 初始sleep时间 ,毫秒
+    baseSleepTimeMs: 1000

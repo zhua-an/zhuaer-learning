@@ -10,7 +10,7 @@ ZooKeeper 是一个典型的分布式数据一致性解决方案，分布式应�
     <dependency>
         <groupId>org.apache.zookeeper</groupId>
         <artifactId>zookeeper</artifactId>
-        <version>3.6.0</version>
+        <version>3.7.0</version>
     </dependency>
 
 **主类：org.apache.zookeeper.ZooKeeper**

@@ -15,10 +15,11 @@
     <modules>
         <module>zookeeper-server</module>
         <module>zookeeper-client</module>
+        <module>zookeeper-curator</module>
     </modules>
 
     <properties>
-        <zookeeper.version>3.6.0</zookeeper.version>
+        <zookeeper.version>3.7.0</zookeeper.version>
         <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
     </properties>
 

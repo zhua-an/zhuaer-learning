@@ -326,6 +326,7 @@ public class TestZookeeper implements Watcher {
 
     }
 
+    //监听事件处理方法
     @Override
     public void process(WatchedEvent event) {
         System.out.println("Receive watched event:" + event);

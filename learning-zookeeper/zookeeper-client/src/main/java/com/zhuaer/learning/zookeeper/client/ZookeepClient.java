@@ -20,7 +20,7 @@ public class ZookeepClient {
             InterruptedException, KeeperException {
         BaseZookeeper baseZookeeper = new BaseZookeeper();
 
-        String host = "192.168.1.199:2181";
+        String host = "127.0.0.1:2181";
 
         baseZookeeper.connectZookeeper(host);
         System.out.println("--------connect zookeeper ok-----------");
@@ -34,18 +34,21 @@ public class ZookeepClient {
             System.out.println(child);
             System.out.println("--------get children ok-----------");
 
+//            baseZookeeper.createNode("/master", data);
+
             byte[] nodeData = baseZookeeper.getData("/master");
             System.out.println(new String(nodeData));
-            System.out.println("--------get node data ok-----------");
+            System.out.println("--------get node new data ok-----------");
 
             data = "test".getBytes();
             Stat stat = baseZookeeper.exists("/master", false);
+            System.out.println(stat);
 
             baseZookeeper.setData("/master", data, stat.getVersion());
             System.out.println("--------set node data ok-----------");
 
             nodeData = baseZookeeper.getData("/master");
-            System.out.println(Arrays.toString(nodeData));
+            System.out.println(new String(nodeData));
             System.out.println("--------get node new data ok-----------");
             Thread.currentThread();
             Thread.sleep(60000L);
