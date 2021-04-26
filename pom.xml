@@ -19,6 +19,7 @@
         <module>learning-sentinel</module>
         <module>learning-elasticsearch</module>
         <module>learning-websocket</module>
+        <module>learning-proxy</module>
     </modules>
 
 	<properties>
