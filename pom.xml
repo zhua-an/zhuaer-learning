@@ -20,6 +20,7 @@
         <module>learning-elasticsearch</module>
         <module>learning-websocket</module>
         <module>learning-proxy</module>
+        <module>learning-seata</module>
     </modules>
 
 	<properties>
