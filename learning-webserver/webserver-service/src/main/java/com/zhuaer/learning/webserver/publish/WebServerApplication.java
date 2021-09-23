@@ -26,7 +26,7 @@ public class WebServerApplication {
          * 第二种方式：使用配置类，不用在启动类中加Endpoint.publish，这种接口的端口号和服务器端口号是一致的
          */
         MyWebService myWebService = new MyWebServiceImpl();
-        Endpoint.publish("http://127.0.0.1:11008/webService?wsdl", myWebService);
+        Endpoint.publish("http://127.0.0.1:11008/webService/webService?wsdl", myWebService);
         System.out.println("启动并发布webservice远程服务，服务发布成功....");
     }
 }

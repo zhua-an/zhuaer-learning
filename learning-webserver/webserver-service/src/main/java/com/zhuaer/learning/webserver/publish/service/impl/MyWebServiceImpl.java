@@ -52,7 +52,7 @@ import javax.jws.WebService;
  * @Version 1.0
  */
 @WebService(endpointInterface = "com.zhuaer.learning.webserver.publish.service.MyWebService",
-        targetNamespace = "http://service.publish.webserver.learning.zhuaer.com", serviceName = "webService", portName = "myWebService")
+        targetNamespace = "http://service.publish.webserver.learning.zhuaer.com", serviceName = "webService")
 @Component
 public class MyWebServiceImpl implements MyWebService {
 
