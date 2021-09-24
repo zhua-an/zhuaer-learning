@@ -12,6 +12,8 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -23,6 +25,8 @@ import java.util.Map;
  * @Version 1.0
  */
 public class Axis2WsClient {
+
+    private static final Logger log = LoggerFactory.getLogger(Axis2WsClient.class);
 
     private static  String ASMX_URL = "http://127.0.0.1:11008/webService/webService?wsdl";
     private static  String SOAPACTION="http://service.publish.webserver.learning.zhuaer.com";
@@ -43,7 +47,6 @@ public class Axis2WsClient {
      * 该方法只有两个参数，它们的含义与invokeBlocking方法的前两个参数的含义相同。
      *
      */
-    //调用失败
     public void testRPCClient() {
         RPCServiceClient serviceClient = null;
         try {
@@ -111,7 +114,7 @@ public class Axis2WsClient {
                     serviceClient.cleanupTransport();
                 }
             } catch (org.apache.axis2.AxisFault e) {
-//                log.error("第三方接口异常 finally",e);
+                log.error("第三方接口异常 finally",e);
             }
         }
     }
@@ -173,8 +176,8 @@ public class Axis2WsClient {
 
     public static void main(String[] args) throws AxisFault {
         Axis2WsClient axis2WsClient = new Axis2WsClient();
-//        axis2WsClient.testRPCClient();
-        axis2WsClient.Weather();
+        axis2WsClient.testRPCClient();
+//        axis2WsClient.Weather();
     }
 
 }

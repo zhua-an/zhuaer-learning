@@ -14,6 +14,7 @@
     <modules>
         <module>webserver-service</module>
         <module>webserver-client</module>
+        <module>webserver-service-xml</module>
     </modules>
 
     <properties>

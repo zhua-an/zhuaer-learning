@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<serviceGroup>
+    <service name="helloService" scope="application" targetNamespace="http://service.publish.webserver.learning.zhuaer.com" >
+        <description>simple axis2 webservice example</description>
+        <schema schemaNamespace="http://service.publish.webserver.learning.zhuaer.com" />
+        <parameter name="ServiceClass">com.zhuaer.learning.webserver.publish.service.HelloService</parameter>
+        <operation name="sayHello">
+            <messageReceiver class = "org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+        </operation>
+    </service>
+</serviceGroup>
