@@ -19,7 +19,7 @@ public interface MyWebService {
 
     @WebMethod(operationName = "sayHello", action="http://service.publish.webserver.learning.zhuaer.com/sayHello")
 //    String sayHello(@WebParam(name = "username", targetNamespace = "http://service.publish.webserver.learning.zhuaer.com") String username);//不使用此注解 webservice 页面看到参数全是arg0
-// axis2 接口卡参数不需要加 @WebParam 主键，否则回报 org.apache.axis2.AxisFault: Unmarshalling Error: 意外的元素 (uri:"", local:"arg0") 异常
-    String sayHello(String username);//不使用此注解 webservice 页面看到参数全是arg0
+// axis2 接口的参数不需要加 @WebParam 主键，否则回报 org.apache.axis2.AxisFault: Unmarshalling Error: 意外的元素 (uri:"", local:"arg0") 异常
+    String sayHello(String username);
 
 }
