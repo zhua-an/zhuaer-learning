@@ -14,6 +14,8 @@
 
 - [redis学习](./learning-redis "learning-redis")
 
+- [redis限流学习](./learning-redis-limit "learning-redis-limit")
+
 - [阿里sentinel限流学习](./learning-sentinel "learning-sentinel")
 
 - [分库分表插件sharding-jdbc学习](./learning-sharding-jdbc "learning-sharding-jdbc")

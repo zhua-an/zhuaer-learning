@@ -22,6 +22,7 @@
         <module>learning-proxy</module>
         <module>learning-seata</module>
         <module>learning-webserver</module>
+        <module>learning-redis-limit</module>
     </modules>
 
 	<properties>
