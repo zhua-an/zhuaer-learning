@@ -6,6 +6,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @SpringBootApplication
 @MapperScan(basePackages = "com.zhuaer.learning.sharding.jdbc.mapper")
-@EnableAspectJAutoProxy(exposeProxy = true) // http://www.voidcn.com/article/p-zddcuyii-bpt.html
+@EnableAspectJAutoProxy(exposeProxy = true)
 public class Application {
 }

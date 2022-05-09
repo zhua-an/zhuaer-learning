@@ -14,7 +14,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  */
 @SpringBootApplication
 @MapperScan(basePackages = "com.zhuaer.learning.dynamic.datasource.mapper")
-@EnableAspectJAutoProxy(exposeProxy = true) // http://www.voidcn.com/article/p-zddcuyii-bpt.html
+@EnableAspectJAutoProxy(exposeProxy = true)
 public class DynamicDatasourceApplication {
 
     public static void main(String[] args) {

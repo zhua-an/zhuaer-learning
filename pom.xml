@@ -15,7 +15,6 @@
         <module>learning-redis</module>
 		<module>learning-mq</module>
         <module>learning-dynamic-datasource</module>
-        <module>learning-sharding-jdbc</module>
         <module>learning-sentinel</module>
         <module>learning-elasticsearch</module>
         <module>learning-websocket</module>

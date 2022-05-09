@@ -6,7 +6,7 @@
         id, username
     </sql>
 
-    <select id="selectById" parameterType="Integer" resultType="UserDO">
+    <select id="selectById" parameterType="Integer" resultType="com.zhuaer.learning.dynamic.datasource.dataobject.UserDO">
         SELECT
         <include refid="FIELDS" />
         FROM users

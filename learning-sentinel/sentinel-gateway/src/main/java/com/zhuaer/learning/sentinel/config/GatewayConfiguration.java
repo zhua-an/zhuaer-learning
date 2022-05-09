@@ -72,6 +72,9 @@ public class GatewayConfiguration {
         return new SentinelGatewayFilter();
     }
 
+    /**
+     * 初始化限流策略
+     */
     @PostConstruct
     public void doInit() {
         initCustomizedApis();
